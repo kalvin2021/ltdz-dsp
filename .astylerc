@@ -1,0 +1,32 @@
+#
+# Author: Kalvin
+#
+# File: .astylerc
+#
+# Configuration file for Astyle C source code formatting tool.
+#
+# Documentation: http://astyle.sourceforge.net/astyle.html
+#
+
+--suffix=none # Do not create backup
+--indent=spaces=4
+--convert-tabs
+--lineend=linux
+--add-one-line-braces
+--attach-extern-c
+#--break-blocks
+--indent-col1-comments
+--indent-labels
+#--indent-switches
+--indent-preproc-define
+--keep-one-line-blocks
+--keep-one-line-statements
+--max-continuation-indent=80
+--min-conditional-indent=0
+--pad-oper
+--pad-header
+#--unpad-paren
+--align-pointer=type
+--align-reference=type
+--max-code-length=160
+
