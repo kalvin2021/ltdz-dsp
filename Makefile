@@ -1,5 +1,6 @@
 # *****************************************************************************
 # Author:   Kalvin
+#
 # File:	    Makefile
 #
 # The main Makefile for building the LTDZ firmware using GCC toolchain.
@@ -72,6 +73,7 @@ C_INCLUDES = \
 # C sources
 C_SOURCES = \
 $(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_adc.c \
+$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_dma.c \
 $(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_flash.c \
 $(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_gpio.c \
 $(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_rcc.c \
@@ -131,8 +133,8 @@ C_DEFS = \
 -DFIRMWARE_VERSION=$(FIRMWARE_VERSION)
 
 # C compiler options
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT)
-CFLAGS += -Wall -Wall -Werror -Wextra
+CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT)
+CFLAGS += -Wall -Werror -Wextra -Wpedantic
 CFLAGS += -fdata-sections
 CFLAGS += -ffreestanding
 CFLAGS += -ffunction-sections
@@ -147,7 +149,7 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 AS_DEFS =
 
 # AS flags
-ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT)
+ASFLAGS += $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT)
 ASFLAGS += -Wall
 ASFLAGS += -fdata-sections
 ASFLAGS += -ffunction-sections
