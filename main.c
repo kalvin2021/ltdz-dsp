@@ -259,8 +259,11 @@ void ADC1_2_IRQHandler(void)
     {
         /* wait */
     }
-    adcx1 = (((ADC_GetConversionValue(ADC1)) >> 2) - 80);
+
+    const int16_t dB = (((ADC_GetConversionValue(ADC1)) >> 2) - 80);
     ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
+
+    adcx1 = (dB < 0) ? 0 : dB;
 }
 
 ////////////////////////////////////////////////////////////////////
