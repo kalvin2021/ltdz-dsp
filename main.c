@@ -32,7 +32,13 @@
 #define CONFIG_RX_ADC_BUFFER_SIZE       (4096)
 
 /** Enable/disable ADF4351 low spur mode */
-#define CONFIG_ADF4351_LOW_SPUR_ENABLE  1   /*< 0: Low noise | 1: Low spur */
+#define CONFIG_ADF4351_LOW_SPUR_ENABLE  0   /*< 0: Low noise | 1: Low spur */
+
+/** Tracking generator default output power level (for good linearity/dynamic range) */
+#define CONFIG_TG_ADF4351_OUTPUT_LEVEL  (ADF4351_OUTPUT_LEVEL_MIN)
+
+/** RX mixer LO driving power level */
+#define CONFIG_RX_ADF4351_OUTPUT_LEVEL  (ADF4351_OUTPUT_LEVEL_MIN)
 
 /** ADF4351 PLL lock wait time in microseconds typ. 500us - 1000us */
 #define CONFIG_ADF4351_PLL_LOCK_TIME_us (750)
@@ -531,7 +537,7 @@ static void adf4351_rx_config(uint32_t wr0, uint32_t wr1, uint32_t wr2, uint32_t
 
 /* -------------------------------------------------------------------------- */
 
-static unsigned tg_output_level = ADF4351_OUTPUT_LEVEL_MAX;
+static unsigned tg_output_level = CONFIG_TG_ADF4351_OUTPUT_LEVEL;
 
 /** Disable tracking generator output */
 static void tg_output_disable(void)
@@ -573,6 +579,9 @@ static void rx_frequency_set(adf4351_freq_div_10_t freq_div_10)
     const adf4351_reg_config_t config = adf4351_reg_config(freq_div_10);
     if (config.valid)
     {
+        uint32_t r4 = config.r4;
+        r4 &= ~(ADF4351_R4_OUTPUT_LEVEL_MASK << ADF4351_R4_OUTPUT_LEVEL_SHIFT);
+        r4 |= (CONFIG_RX_ADF4351_OUTPUT_LEVEL & ADF4351_R4_OUTPUT_LEVEL_MASK) << ADF4351_R4_OUTPUT_LEVEL_SHIFT;
         adf4351_rx_config(config.r0, 0x0800E1A9, 0x00004E42 | ADF4351_NOISE_MODE, config.r4);
     }
     else
