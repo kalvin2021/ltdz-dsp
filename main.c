@@ -712,14 +712,21 @@ static const int log2_table[256] =
 };
 
 /** Returns 20*LOG10(x)*10 */
-static int16_t log_dB(unsigned long long x)
+static int16_t log_dB(uint64_t x)
 {
-    int exp = 0;
+    int exp = 8;
 
     /* Make sure that log argument won't be zero */
     x |= 1;
 
-    /* Normalize */
+    /* Normalize upwards */
+    while (x < 256)
+    {
+        exp--;
+        x <<= 1;
+    }
+
+    /* Normalize downwards */
     while (x >= 512)
     {
         exp++;
@@ -792,7 +799,7 @@ static void rx_adc_buffer_capture_stop(void)
 /** Remove the DC offset from the ADC samples */
 static void rx_adc_buffer_dc_offset_remove(void)
 {
-    unsigned long buffer_mean_sum = 0;
+    uint32_t buffer_mean_sum = 0;
 
     for (uint16_t n = 0; n < CONFIG_RX_ADC_BUFFER_SIZE; n++)
     {
@@ -831,7 +838,7 @@ static int16_t rx_adc_buffer_dB(void)
 {
     rx_adc_buffer_fill();
 
-    unsigned long long squared_sum = 0;
+    uint64_t squared_sum = 0;
 
     for (unsigned n = 0; n < CONFIG_RX_ADC_BUFFER_SIZE; n++)
     {
