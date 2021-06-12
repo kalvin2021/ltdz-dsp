@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include <math.h>
+#include <assert.h>
 
 /* -------------------------------------------------------------------------- */
 
@@ -55,7 +55,7 @@
 #define CONFIG_SWEEP_WAITTIME_us            (50)
 #else
 /** Default RX LO frequency offset in Hz in NA mode when using new ADC dB mode */
-#define RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz   (15*8000L)
+#define RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz   (10*8000L)
 /** Wait time after PLL lock */
 #define CONFIG_SWEEP_WAITTIME_us            (0)
 #endif
@@ -537,6 +537,12 @@ static void adf4351_rx_config(uint32_t wr0, uint32_t wr1, uint32_t wr2, uint32_t
 
 /* -------------------------------------------------------------------------- */
 
+static_assert(CONFIG_TG_ADF4351_OUTPUT_LEVEL >= ADF4351_OUTPUT_LEVEL_MIN,
+              "ADF4351 output level outside valid range");
+
+static_assert(CONFIG_TG_ADF4351_OUTPUT_LEVEL <= ADF4351_OUTPUT_LEVEL_MAX,
+              "ADF4351 output level outside valid range");
+
 static unsigned tg_output_level = CONFIG_TG_ADF4351_OUTPUT_LEVEL;
 
 /** Disable tracking generator output */
@@ -563,6 +569,12 @@ static void tg_frequency_set(adf4351_freq_div_10_t freq_div_10)
 }
 
 /* -------------------------------------------------------------------------- */
+
+static_assert(CONFIG_RX_ADF4351_OUTPUT_LEVEL >= ADF4351_OUTPUT_LEVEL_MIN,
+              "ADF4351 output level outside valid range");
+
+static_assert(CONFIG_RX_ADF4351_OUTPUT_LEVEL <= ADF4351_OUTPUT_LEVEL_MAX,
+              "ADF4351 output level outside valid range");
 
 /** RX LO default output frequency offset setting in NA mode */
 static adf4351_freq_offset_div_10_t rx_na_mode_freq_offset_div_10 = RX_DEFAULT_NA_FREQ_OFFSET_DIV_10;
