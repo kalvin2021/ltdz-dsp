@@ -31,7 +31,7 @@
 #define CONFIG_AD8307_ENABLE            0   /*< 0 | 1 */
 
 /** ADC sample buffer length 2**N */
-#define CONFIG_RX_ADC_BUFFER_SIZE       (4096)
+#define CONFIG_RX_ADC_BUFFER_SIZE       (1024)
 
 /** Enable/disable ADF4351 low spur mode */
 #define CONFIG_ADF4351_LOW_SPUR_ENABLE  0   /*< 0: Low noise | 1: Low spur */
