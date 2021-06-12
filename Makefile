@@ -28,11 +28,11 @@ TARGET = ltdz_firmware
 ######################################
 
 # Debug build option: 0 | 1
-DEBUG = 1
+DEBUG = 0
 
 # Optimization level depending on DEBUG option
 ifeq ($(DEBUG), 0)
-OPT = -Os
+OPT = -O3
 else
 OPT = -g -O0 -gdwarf-2
 endif
@@ -65,10 +65,10 @@ C_INCLUDES = \
 -I./ \
 -I$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x \
 -I$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/inc \
--I$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/STM32F1xx_HAL_Driver/Inc \
--I$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy \
+-I$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/Include \
+-I$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/Core/Include \
 -I$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/Device/ST/STM32F1xx/Include \
--I$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/Include
+-I$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/DSP/Include
 
 # C sources
 C_SOURCES = \
@@ -80,8 +80,10 @@ $(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/
 $(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_spi.c \
 $(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_usart.c \
 $(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/misc.c \
+$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df1_init_q31.c \
+$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df1_q31.c \
 system_stm32f10x.c \
-main.c \
+main.c
 
 # AS includes
 AS_INCLUDES =
@@ -130,6 +132,7 @@ C_DEFS = \
 -DUSE_STDPERIPH_DRIVER \
 -DSTM32F103xB \
 -DSTM32F10X_MD \
+-DARM_MATH_CM3 \
 -DFIRMWARE_VERSION=$(FIRMWARE_VERSION)
 
 # C compiler options
