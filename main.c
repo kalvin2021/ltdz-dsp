@@ -60,11 +60,15 @@ STATIC_ASSERT_POWER_OF_2(CONFIG_RX_ADC_BUFFER_SIZE, "ADC buffer size must be 2**
 #define RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz   (120000L)
 /** Wait time after PLL lock */
 #define CONFIG_SWEEP_WAITTIME_us            (50)
+/** ADC sample time */
+#define CONFIG_ADC_SAMPLE_TIME              (ADC_SampleTime_239Cycles5)
 #else
 /** Default RX LO frequency offset in Hz in NA mode when using new ADC dB mode */
 #define RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz   (10*8000L)
 /** Wait time after PLL lock */
 #define CONFIG_SWEEP_WAITTIME_us            (0)
+/** ADC sample time */
+#define CONFIG_ADC_SAMPLE_TIME              (ADC_SampleTime_1Cycles5)
 #endif
 
 /** Default RX LO frequency offset / 10 in network analyzer (NA) mode */
@@ -732,7 +736,7 @@ static const int log2_table[256] =
 #include "ltdz_log2_table.inc"
 };
 
-STATIC_ASSERT_POWER_OF_2(sizeof(log2_table)/sizeof(log2_table[0]), "Log2 table size must be 2**N");
+STATIC_ASSERT_POWER_OF_2(sizeof(log2_table) / sizeof(log2_table[0]), "Log2 table size must be 2**N");
 
 /** Returns 20*LOG10(x)*10 */
 static int16_t log_dB(uint64_t x)
@@ -907,7 +911,7 @@ sa_iir_q31_filter_t;
 static const sa_iir_q31_filter_t SA_IIR_Q31_LOWPASS_FILTER [SA_LOWPASS_FILTER_ENUM_COUNT] = {
     {
         /* 500 Hz Note: Does not work due to coefficient quantization problems */
-        .bw_div10 = 500/10,
+        .bw_div10 = 500 / 10,
         .coeffs = {
             0, 0, 0, 2142466860, -1068734001,
             1073741824, 2147483647, 1073741824, 2145387340, -1071664683
@@ -916,7 +920,7 @@ static const sa_iir_q31_filter_t SA_IIR_Q31_LOWPASS_FILTER [SA_LOWPASS_FILTER_EN
     },
     {
         /* 1kHz Note: Does not work due to coefficient quantization problems */
-        .bw_div10 = 1000/10,
+        .bw_div10 = 1000 / 10,
         .coeffs = {
             0, 0, 0, 2137455559, -1063749509,
             1073741824, 2147483647, 1073741824, 2143256832, -1069591598
@@ -925,7 +929,7 @@ static const sa_iir_q31_filter_t SA_IIR_Q31_LOWPASS_FILTER [SA_LOWPASS_FILTER_EN
     },
     {
         /* 2kHz Note: Does not work due to coefficient quantization problems */
-        .bw_div10 = 2000/10,
+        .bw_div10 = 2000 / 10,
         .coeffs = {
             0, 1, 0, 2140984286, -1067287558,
             1073741824, 2147483647, 1073741824, 2144597430, -1071063766
@@ -934,7 +938,7 @@ static const sa_iir_q31_filter_t SA_IIR_Q31_LOWPASS_FILTER [SA_LOWPASS_FILTER_EN
     },
     {
         /* 3.3kHz*1.5 */
-        .bw_div10 = 3300/10,
+        .bw_div10 = 3300 / 10,
         .coeffs = {
             92, 184, 92, 2098057971, -1025176885,
             1073741824, 2147483647, 1073741824, 2125239983, -1053360200
@@ -943,7 +947,7 @@ static const sa_iir_q31_filter_t SA_IIR_Q31_LOWPASS_FILTER [SA_LOWPASS_FILTER_EN
     },
     {
         /* 5kHz*1.5 */
-        .bw_div10 = 5000/10,
+        .bw_div10 = 5000 / 10,
         .coeffs = {
             478, 956, 478, 2072803195, -1001014644,
             1073741824, 2147483647, 1073741824, 2112512842, -1043023699
@@ -952,7 +956,7 @@ static const sa_iir_q31_filter_t SA_IIR_Q31_LOWPASS_FILTER [SA_LOWPASS_FILTER_EN
     },
     {
         /* 10kHz*1.5 */
-        .bw_div10 = 10000/10,
+        .bw_div10 = 10000 / 10,
         .coeffs = {
             7283, 14567, 7283, 1999322137, -933138541,
             1073741824, 2147483647, 1073741824, 2070299901, -1013304795
@@ -961,7 +965,7 @@ static const sa_iir_q31_filter_t SA_IIR_Q31_LOWPASS_FILTER [SA_LOWPASS_FILTER_EN
     },
     {
         /* 20kHz*1.5 */
-        .bw_div10 = 20000/10,
+        .bw_div10 = 20000 / 10,
         .coeffs = {
             105870, 211740, 105870, 1855773784, -810427275,
             1073741824, 2147483647, 1073741824, 1966121706, -957175633
@@ -970,7 +974,7 @@ static const sa_iir_q31_filter_t SA_IIR_Q31_LOWPASS_FILTER [SA_LOWPASS_FILTER_EN
     },
     {
         /* 33kHz*1.5 */
-        .bw_div10 = 33000/10,
+        .bw_div10 = 33000 / 10,
         .coeffs = {
             695102, 1390203, 695102, 1675355119, -673356491,
             1073741824, 2147483647, 1073741824, 1796806482, -891443461
@@ -979,7 +983,7 @@ static const sa_iir_q31_filter_t SA_IIR_Q31_LOWPASS_FILTER [SA_LOWPASS_FILTER_EN
     },
     {
         /* 50kHz*1.5 */
-        .bw_div10 = 50000/10,
+        .bw_div10 = 50000 / 10,
         .coeffs = {
             3146368, 6292735, 3146368, 1448330439, -525593455,
             1073741824, 2147483647, 1073741824, 1530373363, -818739809
@@ -988,7 +992,7 @@ static const sa_iir_q31_filter_t SA_IIR_Q31_LOWPASS_FILTER [SA_LOWPASS_FILTER_EN
     },
     {
         /* 100kHz*1.5 */
-        .bw_div10 = 100000/10,
+        .bw_div10 = 100000 / 10,
         .coeffs = {
             33748095, 67496190, 33748095, 589565549, -692409597,
             1073741824, 2147483647, 1073741824, 816231661, -240967252
@@ -997,7 +1001,7 @@ static const sa_iir_q31_filter_t SA_IIR_Q31_LOWPASS_FILTER [SA_LOWPASS_FILTER_EN
     },
     {
         /* 200kHz*1.5 */
-        .bw_div10 = 200000/10,
+        .bw_div10 = 200000 / 10,
         .coeffs = {
             308729603, 617459205, 308729603, -1236633411, -762752365,
             1073741824, 2147483647, 1073741824, -509128625, -163022188
@@ -1017,7 +1021,7 @@ static sa_iir_q31_filter_t const* sa_lowpass_filter_select(int32_t step_size_div
             return f;
         }
     }
-    return &SA_IIR_Q31_LOWPASS_FILTER[SA_LOWPASS_FILTER_ENUM_COUNT-1];
+    return &SA_IIR_Q31_LOWPASS_FILTER[SA_LOWPASS_FILTER_ENUM_COUNT - 1];
 }
 
 #define SA_IIR_BLOCK_SIZE   (1<<5)
@@ -1030,7 +1034,7 @@ static int16_t sa_level_dB(int32_t step_size_div_10)
 
     arm_biquad_casd_df1_inst_q31 iir_biquad_filter;
 
-    q31_t iir_biquad_state[SA_IIR_BIQUAD_STAGES*4];
+    q31_t iir_biquad_state[SA_IIR_BIQUAD_STAGES * 4];
 
     arm_biquad_cascade_df1_init_q31(&iir_biquad_filter,
                                     SA_IIR_BIQUAD_STAGES,
@@ -1048,7 +1052,7 @@ static int16_t sa_level_dB(int32_t step_size_div_10)
         /* Copy next sample block into the filter buffer */
         for (unsigned n = 0; n < SA_IIR_BLOCK_SIZE; n++)
         {
-            iir_block_buffer[n] = (q31_t) ((*srcbuf++)<<16);
+            iir_block_buffer[n] = (q31_t) ((*srcbuf++) << 16);
         }
 
         /*
@@ -1061,7 +1065,7 @@ static int16_t sa_level_dB(int32_t step_size_div_10)
          */
         for (unsigned n = 0; n < SA_IIR_BLOCK_SIZE; n++)
         {
-            const q31_t x = iir_block_buffer[n]>>16;
+            const q31_t x = iir_block_buffer[n] >> 16;
             rms_squared_sum += (x * x);
         }
     }
@@ -1101,7 +1105,7 @@ static uint16_t rx_level_dB(bool spectrum_analyzer_mode, int32_t step_size_div_1
         if (spectrum_analyzer_mode)
         {
             dB = sa_level_dB(step_size_div_10);
-            dB = (dB + 200)/4;
+            dB = (dB + 200) / 4;
         }
         else
         {
@@ -1219,6 +1223,66 @@ static void sweep_output_dB(adf4351_freq_div_10_t frequency_div_10,
     uart_write_u16(level);
 }
 
+static void adc_sample_clock(uint32_t* M, uint32_t* N)
+{
+    unsigned adc_clock_divisor = 0;
+
+    switch (RCC->CFGR & ((uint32_t)~0xFFFF3FFF))
+    {
+    case RCC_PCLK2_Div2:
+        adc_clock_divisor = 2;
+        break;
+    case RCC_PCLK2_Div4:
+        adc_clock_divisor = 4;
+        break;
+    case RCC_PCLK2_Div6:
+        adc_clock_divisor = 6;
+        break;
+    case RCC_PCLK2_Div8:
+        adc_clock_divisor = 8;
+        break;
+    default:
+        /* should not reach here */
+        adc_clock_divisor = 0;
+    }
+
+    unsigned adc_sample_time = 0;
+
+    switch (CONFIG_ADC_SAMPLE_TIME)
+    {
+    case ADC_SampleTime_1Cycles5:
+        adc_sample_time = (1 + 12 + 1);
+        break;
+    case ADC_SampleTime_7Cycles5:
+        adc_sample_time = (7 + 12 + 1);
+        break;
+    case ADC_SampleTime_13Cycles5:
+        adc_sample_time = (13 + 12 + 1);
+        break;
+    case ADC_SampleTime_28Cycles5:
+        adc_sample_time = (28 + 12 + 1);
+        break;
+    case ADC_SampleTime_41Cycles5:
+        adc_sample_time = (41 + 12 + 1);
+        break;
+    case ADC_SampleTime_55Cycles5:
+        adc_sample_time = (55 + 12 + 1);
+        break;
+    case ADC_SampleTime_71Cycles5:
+        adc_sample_time = (71 + 12 + 1);
+        break;
+    case ADC_SampleTime_239Cycles5:
+        adc_sample_time = (239 + 12 + 1);
+        break;
+    default:
+        /* should not reach here */
+        adc_sample_time = 0;
+    }
+
+    *M = SystemCoreClock;
+    *N = adc_clock_divisor * adc_sample_time;
+}
+
 static void sweep_output_adc_buffer(adf4351_freq_div_10_t frequency_div_10,
                                     adf4351_freq_offset_div_10_t rx_offset_div_10,
                                     int32_t step_size_div_10)
@@ -1233,6 +1297,15 @@ static void sweep_output_adc_buffer(adf4351_freq_div_10_t frequency_div_10,
 
     /* Output sweep step size */
     uart_write_u32((uint32_t) step_size_div_10);
+
+    /* ADC sample clock frequency M */
+    uint32_t M = 0;
+    uint32_t N = 0;
+
+    adc_sample_clock(&M, &N);
+
+    uart_write_u32(M);
+    uart_write_u32(N);
 
     /* Output ADC buffer length */
     uart_write_u16(CONFIG_RX_ADC_BUFFER_SIZE);
@@ -1608,7 +1681,7 @@ void Adc_Init(void)
     ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
     ADC_InitStructure.ADC_NbrOfChannel = 1;
     ADC_Init(ADC1, &ADC_InitStructure);
-    ADC_RegularChannelConfig(ADC1, ADC_AD8307_ADC_CHANNEL, 1, ADC_SampleTime_239Cycles5);
+    ADC_RegularChannelConfig(ADC1, ADC_AD8307_ADC_CHANNEL, 1, CONFIG_ADC_SAMPLE_TIME);
 #else
     ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
     ADC_InitStructure.ADC_ScanConvMode = DISABLE;
@@ -1617,7 +1690,7 @@ void Adc_Init(void)
     ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Left;
     ADC_InitStructure.ADC_NbrOfChannel = 1;
     ADC_Init(ADC1, &ADC_InitStructure);
-    ADC_RegularChannelConfig(ADC1, ADC_RBW_ADC_CHANNEL, 1, ADC_SampleTime_1Cycles5);
+    ADC_RegularChannelConfig(ADC1, ADC_RBW_ADC_CHANNEL, 1, CONFIG_ADC_SAMPLE_TIME);
 #endif
 
     /* Enable ADC1 */
