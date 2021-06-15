@@ -12,7 +12,6 @@
 #include "stm32f10x.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include "arm_math.h"
@@ -893,6 +892,20 @@ void DMA1_Channel1_IRQHandler(void)
 
 /* --------------------------------------------------------------------------*/
 
+/* Convert abs(int32_t) -> uint32_t */
+static inline uint32_t abs_i32(int32_t x)
+{
+    return (x > 0) ? x : -x;
+}
+
+/* Convert abs(q31_t) -> uint32_t */
+static inline uint32_t abs_q31(q31_t x)
+{
+    return (x > 0) ? x : -x;
+}
+
+/* --------------------------------------------------------------------------*/
+
 typedef enum {
     SA_LOWPASS_FILTER_500_Hz,
     SA_LOWPASS_FILTER_1_kHz,
@@ -1043,7 +1056,7 @@ static const sa_iir_q31_filter_t SA_IIR_Q31_LOWPASS_FILTER [SA_LOWPASS_FILTER_EN
 
 static sa_iir_q31_filter_t const* sa_lowpass_filter_select(int32_t step_size_div_10)
 {
-    const unsigned step_size = abs(step_size_div_10);
+    const unsigned step_size = abs_i32(step_size_div_10);
     for (sa_lowpass_filter_t n = SA_LOWPASS_FIRST_WORKING_FILTER; n < SA_LOWPASS_FILTER_ENUM_COUNT; n++)
     {
         const sa_iir_q31_filter_t* const f = &SA_IIR_Q31_LOWPASS_FILTER[n];
@@ -1096,12 +1109,12 @@ static int16_t sa_level_dB(int32_t step_size_div_10)
          */
         for (unsigned n = 0; n < SA_IIR_BLOCK_SIZE; n++)
         {
-            const q31_t x = iir_block_buffer[n] >> 16;
-            rms_squared_sum += (x * x);
+            uint32_t x = abs_q31(iir_block_buffer[n]);
+            rms_squared_sum += ((uint64_t)x * x) >> 11;
         }
     }
 
-    return log_dB(rms_squared_sum / CONFIG_RX_ADC_BUFFER_SIZE);
+    return log_dB(rms_squared_sum / CONFIG_RX_ADC_BUFFER_SIZE) - 1100;
 }
 
 /* --------------------------------------------------------------------------*/
@@ -1136,7 +1149,7 @@ static uint16_t rx_level_dB(bool spectrum_analyzer_mode, int32_t step_size_div_1
         if (spectrum_analyzer_mode)
         {
             dB = sa_level_dB(step_size_div_10);
-            dB = (dB + 200) / 4;
+            dB = dB / 4;
         }
         else
         {
