@@ -19,11 +19,16 @@
 
 /* -------------------------------------------------------------------------- */
 
-/** Default serial port baud rate */
-#define CONFIG_SERIAL_BAUD              (57600)
+/** Wrapper macro for portability */
+#define STATIC_ASSERT(expr, msg) static_assert(expr, msg)
 
 /** Helper macro for checking that the argument is 2**N */
-#define STATIC_ASSERT_POWER_OF_2(n, msg) static_assert((n) && (!((n) & ((n)-1))), msg)
+#define STATIC_ASSERT_POWER_OF_2(n, msg) STATIC_ASSERT(((n) && (!((n) & ((n)-1)))), msg)
+
+/* -------------------------------------------------------------------------- */
+
+/** Default serial port baud rate */
+#define CONFIG_SERIAL_BAUD              (57600)
 
 /**
  * Enable/disable AD8307 LOG/RMS-detector implementation.
@@ -50,23 +55,48 @@ STATIC_ASSERT_POWER_OF_2(CONFIG_RX_ADC_BUFFER_SIZE, "ADC buffer size must be 2**
 /** ADF4351 PLL lock wait time in microseconds typ. 500us - 1000us */
 #define CONFIG_ADF4351_PLL_LOCK_TIME_us (750)
 
+STATIC_ASSERT(500 <= CONFIG_ADF4351_PLL_LOCK_TIME_us,
+              "ADF4351 PLL lock wait-time must be at least 500us");
+STATIC_ASSERT(CONFIG_ADF4351_PLL_LOCK_TIME_us <= 1000,
+              "ADF4351 PLL lock wait-time should not be unnecessary long");
+
 /** Firmware extra version info */
 #define FIRMWARE_EXTRAVER               10
 
 /* -------------------------------------------------------------------------- */
 
 #if CONFIG_AD8307_ENABLE
+
 /** Default RX LO frequency offset in Hz in NA mode when using AD8307 */
 #define RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz   (120000L)
+
+STATIC_ASSERT(RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz == 120000L,
+              "Must be 120kHz for compatibility with the legacy baords");
+
 /** Wait time after PLL lock */
 #define CONFIG_SWEEP_WAITTIME_us            (50)
+
+STATIC_ASSERT(50 <= CONFIG_SWEEP_WAITTIME_us, "AD8307 RMS settling time must be >= 50us");
+
 /** ADC sample time */
 #define CONFIG_ADC_SAMPLE_TIME              (ADC_SampleTime_239Cycles5)
+
 #else
+
 /** Default RX LO frequency offset in Hz in NA mode when using new ADC dB mode */
 #define RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz   (10*8000L)
+
+STATIC_ASSERT(RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz % 8000L == 0,
+              "RX LO frequency must be N*8000Hz");
+STATIC_ASSERT((8000 <= RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz
+               && RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz <= 120000)
+              || (-120000 <= RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz
+                  && RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz <= -8000),
+              "RX LO frequency must be in range 8000Hz ... 120kHz");
+
 /** Wait time after PLL lock */
 #define CONFIG_SWEEP_WAITTIME_us            (0)
+
 /** ADC sample time */
 #define CONFIG_ADC_SAMPLE_TIME              (ADC_SampleTime_1Cycles5)
 #endif
@@ -548,10 +578,10 @@ static void adf4351_rx_config(uint32_t wr0, uint32_t wr1, uint32_t wr2, uint32_t
 
 /* -------------------------------------------------------------------------- */
 
-static_assert(CONFIG_TG_ADF4351_OUTPUT_LEVEL >= ADF4351_OUTPUT_LEVEL_MIN,
+STATIC_ASSERT(CONFIG_TG_ADF4351_OUTPUT_LEVEL >= ADF4351_OUTPUT_LEVEL_MIN,
               "ADF4351 output level outside valid range");
 
-static_assert(CONFIG_TG_ADF4351_OUTPUT_LEVEL <= ADF4351_OUTPUT_LEVEL_MAX,
+STATIC_ASSERT(CONFIG_TG_ADF4351_OUTPUT_LEVEL <= ADF4351_OUTPUT_LEVEL_MAX,
               "ADF4351 output level outside valid range");
 
 static unsigned tg_output_level = CONFIG_TG_ADF4351_OUTPUT_LEVEL;
@@ -581,10 +611,10 @@ static void tg_frequency_set(adf4351_freq_div_10_t freq_div_10)
 
 /* -------------------------------------------------------------------------- */
 
-static_assert(CONFIG_RX_ADF4351_OUTPUT_LEVEL >= ADF4351_OUTPUT_LEVEL_MIN,
+STATIC_ASSERT(CONFIG_RX_ADF4351_OUTPUT_LEVEL >= ADF4351_OUTPUT_LEVEL_MIN,
               "ADF4351 output level outside valid range");
 
-static_assert(CONFIG_RX_ADF4351_OUTPUT_LEVEL <= ADF4351_OUTPUT_LEVEL_MAX,
+STATIC_ASSERT(CONFIG_RX_ADF4351_OUTPUT_LEVEL <= ADF4351_OUTPUT_LEVEL_MAX,
               "ADF4351 output level outside valid range");
 
 /** RX LO default output frequency offset setting in NA mode */
@@ -704,7 +734,7 @@ void USART1_IRQHandler(void)
 /** AD8307 LOG/RMS read average count */
 #define RX_LEVEL_AVERAGE_COUNT    (1)
 
-static_assert(RX_LEVEL_AVERAGE_COUNT > 0, "Average count must be > 1");
+STATIC_ASSERT(RX_LEVEL_AVERAGE_COUNT >= 1, "Average count must be >= 1");
 
 /** Returns the AD8307 LOG/RMS value */
 static int16_t rx_ad8307_level(unsigned average_count)
@@ -736,7 +766,8 @@ static const int log2_table[256] =
 #include "ltdz_log2_table.inc"
 };
 
-STATIC_ASSERT_POWER_OF_2(sizeof(log2_table) / sizeof(log2_table[0]), "Log2 table size must be 2**N");
+STATIC_ASSERT_POWER_OF_2(sizeof(log2_table) / sizeof(log2_table[0]),
+                         "Log2 table size must be 2**N");
 
 /** Returns 20*LOG10(x)*10 */
 static int16_t log_dB(uint64_t x)
