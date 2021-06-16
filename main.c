@@ -67,9 +67,9 @@ STATIC_ASSERT(CONFIG_ADF4351_PLL_LOCK_TIME_us <= 1000,
 #if CONFIG_AD8307_ENABLE
 
 /** Default RX LO frequency offset in Hz in NA mode when using AD8307 */
-#define RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz   (120000L)
+#define CONFIG_RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz    (120000L)
 
-STATIC_ASSERT(RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz == 120000L,
+STATIC_ASSERT(CONFIG_RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz == 120000L,
               "Must be 120kHz for compatibility with the legacy baords");
 
 /** Wait time after PLL lock */
@@ -83,14 +83,14 @@ STATIC_ASSERT(50 <= CONFIG_SWEEP_WAITTIME_us, "AD8307 RMS settling time must be 
 #else
 
 /** Default RX LO frequency offset in Hz in NA mode when using new ADC dB mode */
-#define RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz   (10*8000L)
+#define CONFIG_RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz    (10*8000L)
 
-STATIC_ASSERT(RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz % 8000L == 0,
+STATIC_ASSERT(CONFIG_RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz % 8000L == 0,
               "RX LO frequency must be N*8000Hz");
-STATIC_ASSERT((8000 <= RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz
-               && RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz <= 120000)
-              || (-120000 <= RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz
-                  && RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz <= -8000),
+STATIC_ASSERT((8000 <= CONFIG_RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz
+               && CONFIG_RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz <= 120000)
+              || (-120000 <= CONFIG_RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz
+                  && CONFIG_RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz <= -8000),
               "RX LO frequency must be in range 8000Hz ... 120kHz");
 
 /** Wait time after PLL lock */
@@ -101,7 +101,7 @@ STATIC_ASSERT((8000 <= RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz
 #endif
 
 /** Default RX LO frequency offset / 10 in network analyzer (NA) mode */
-#define RX_DEFAULT_NA_FREQ_OFFSET_DIV_10    (RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz / 10)
+#define RX_DEFAULT_NA_FREQ_OFFSET_DIV_10    (CONFIG_RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz / 10)
 
 /* -------------------------------------------------------------------------. */
 
@@ -211,10 +211,10 @@ enum
 };
 
 /** Serial port command buffer size */
-#define COMMAND_BUFFER_SIZE (26)
+#define CONFIG_COMMAND_BUFFER_SIZE (26)
 
 /** Serial port command buffer */
-volatile uint8_t command_buffer[COMMAND_BUFFER_SIZE];
+volatile uint8_t command_buffer[CONFIG_COMMAND_BUFFER_SIZE];
 
 /** Serial port command  length */
 volatile uint8_t command_length = 0;
