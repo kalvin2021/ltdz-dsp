@@ -1137,11 +1137,40 @@ static int16_t na_level_dB(void)
     int64_t i_sum = 0;
 
     q15_t const* srcbuf = (q15_t const*)rx_adc_buffer;
-    for (unsigned n = 0; n < CONFIG_RX_ADC_BUFFER_SIZE; n++)
+    q15_t const* cosbuf = cos_table;
+    q15_t const* sinbuf = sin_table;
+
+    unsigned n = CONFIG_RX_ADC_BUFFER_SIZE;
+
+    while (n >= 4)
     {
-        q_sum += (*srcbuf * cos_table[n]);
-        i_sum += (*srcbuf * sin_table[n]);
-        srcbuf++;
+        n = n - 4;
+
+        q15_t x;
+        /* 1 */
+        x = *srcbuf++;
+        q_sum += x * (*cosbuf++);
+        i_sum += x * (*sinbuf++);
+        /* 2 */
+        x = *srcbuf++;
+        q_sum += x * (*cosbuf++);
+        i_sum += x * (*sinbuf++);
+        /* 3 */
+        x = *srcbuf++;
+        q_sum += x * (*cosbuf++);
+        i_sum += x * (*sinbuf++);
+        /* 4 */
+        x = *srcbuf++;
+        q_sum += x * (*cosbuf++);
+        i_sum += x * (*sinbuf++);
+    }
+
+    while (n > 0)
+    {
+        n--;
+        q15_t x = *srcbuf++;
+        q_sum += x * (*cosbuf++);
+        i_sum += x * (*sinbuf++);
     }
 
     const uint32_t q = abs_i32(q_sum >> 8);
