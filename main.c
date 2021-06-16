@@ -4,7 +4,7 @@
  * Original Author      : zn007
  * Date First Issued    : 09/30/2018
  * Modified             : 2021/05/29
- * Description          : Main program body  8mhz cy
+ * Description          : Main program
  ********************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
@@ -108,74 +108,74 @@ STATIC_ASSERT((8000 <= CONFIG_RX_DEFAULT_NA_MODE_FREQ_OFFSET_Hz
 /**
  * Busy RED LED
  */
-#define BUSY_LED_PORT   (GPIOB)
-#define BUSY_LED_PIN    (GPIO_Pin_1)
+#define BUSY_LED_GPIO_PORT  (GPIOB)
+#define BUSY_LED_GPIO_PIN   (GPIO_Pin_1)
 
 #define BUSY_LED_DISABLE() \
-    do { BUSY_LED_PORT->BRR = BUSY_LED_PIN; } while (0)
+    do { BUSY_LED_GPIO_PORT->BRR = BUSY_LED_GPIO_PIN; } while (0)
 
 #define BUSY_LED_ENABLE() \
-    do { BUSY_LED_PORT->BSRR = BUSY_LED_PIN; } while (0)
+    do { BUSY_LED_GPIO_PORT->BSRR = BUSY_LED_GPIO_PIN; } while (0)
 
 #define BUSY_LED_TOGGLE() \
-    do { BUSY_LED_PORT->ODR ^= BUSY_LED_PIN; } while (0)
+    do { BUSY_LED_GPIO_PORT->ODR ^= BUSY_LED_GPIO_PIN; } while (0)
 
 /**
  * Tracking generator status BLUE LED
  */
-#define TG_LED_PORT   (GPIOA)
-#define TG_LED_PIN    (GPIO_Pin_11)
+#define TG_LED_GPIO_PORT    (GPIOA)
+#define TG_LED_GPIO_PIN     (GPIO_Pin_11)
 
 #define TG_LED_DISABLE() \
-    do { TG_LED_PORT->BRR = TG_LED_PIN; } while (0)
+    do { TG_LED_GPIO_PORT->BRR = TG_LED_GPIO_PIN; } while (0)
 
 #define TG_LED_ENABLE() \
-    do { TG_LED_PORT->BSRR = TG_LED_PIN; } while (0)
+    do { TG_LED_GPIO_PORT->BSRR = TG_LED_GPIO_PIN; } while (0)
 
 /**
  * Tracking generator enable/disable push-button GPIO pin
  */
-#define TG_BUTTON_PORT      (GPIOA)
-#define TG_BUTTON_PIN       (GPIO_Pin_12)
+#define TG_BUTTON_GPIO_PORT (GPIOA)
+#define TG_BUTTON_GPIO_PIN  (GPIO_Pin_12)
 
-#define TG_BUTTON_STATE()   ((TG_BUTTON_PORT->IDR & TG_BUTTON_PIN) ? 1 : 0)
+#define TG_BUTTON_STATE()   ((TG_BUTTON_GPIO_PORT->IDR & TG_BUTTON_GPIO_PIN) ? 1 : 0)
 
 /**
  * ADF4351 TG shift register load enable (loads on 0->1 transition)
  */
-#define ADF4351_TG_LE_PORT  (GPIOB)
-#define ADF4351_TG_LE_PIN   (GPIO_Pin_12)
+#define ADF4351_TG_LE_GPIO_PORT (GPIOB)
+#define ADF4351_TG_LE_GPIO_PIN  (GPIO_Pin_12)
 
 #define ADF4351_TG_LE_CLR() \
-    do { ADF4351_TG_LE_PORT->BRR = ADF4351_TG_LE_PIN; } while (0)
+    do { ADF4351_TG_LE_GPIO_PORT->BRR = ADF4351_TG_LE_GPIO_PIN; } while (0)
 
 #define ADF4351_TG_LE_SET() \
-    do { ADF4351_TG_LE_PORT->BSRR = ADF4351_TG_LE_PIN; } while (0)
+    do { ADF4351_TG_LE_GPIO_PORT->BSRR = ADF4351_TG_LE_GPIO_PIN; } while (0)
 
 /**
  * ADF4351 RX shift register load enable (loads on 0->1 transition)
  */
-#define ADF4351_RX_LE_PORT  (GPIOA)
-#define ADF4351_RX_LE_PIN   (GPIO_Pin_4)
+#define ADF4351_RX_LE_GPIO_PORT (GPIOA)
+#define ADF4351_RX_LE_GPIO_PIN  (GPIO_Pin_4)
 
 #define ADF4351_RX_LE_CLR() \
-    do { ADF4351_RX_LE_PORT->BRR = ADF4351_RX_LE_PIN; } while (0)
+    do { ADF4351_RX_LE_GPIO_PORT->BRR = ADF4351_RX_LE_GPIO_PIN; } while (0)
 
 #define ADF4351_RX_LE_SET() \
-    do { ADF4351_RX_LE_PORT->BSRR = ADF4351_RX_LE_PIN; } while (0)
+    do { ADF4351_RX_LE_GPIO_PORT->BSRR = ADF4351_RX_LE_GPIO_PIN; } while (0)
 
 /**
  * RBW-filter ADC input channel
  */
-#define ADC_RBW_PORT            (GPIOA)
-#define ADC_RBW_PIN             (GPIO_Pin_2)
+#define ADC_RBW_GPIO_PORT       (GPIOA)
+#define ADC_RBW_GPIO_PIN        (GPIO_Pin_2)
 #define ADC_RBW_ADC_CHANNEL     (2)
 
 /**
  * AD8307 LOG/RMS-detector ADC input channel
  */
-#define ADC_AD8307_PORT         (GPIOA)
-#define ADC_AD8307_PIN          (GPIO_Pin_3)
+#define ADC_AD8307_GPIO_PORT    (GPIOA)
+#define ADC_AD8307_GPIO_PIN     (GPIO_Pin_3)
 #define ADC_AD8307_ADC_CHANNEL  (3)
 
 /* -------------------------------------------------------------------------. */
@@ -1644,36 +1644,36 @@ void GPIO_Configuration(void) ///初始化要用的端口
 
     /* Busy LED pin */
     GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Pin = BUSY_LED_PIN;
+    GPIO_InitStructure.GPIO_Pin = BUSY_LED_GPIO_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-    GPIO_Init(BUSY_LED_PORT, &GPIO_InitStructure);
+    GPIO_Init(BUSY_LED_GPIO_PORT, &GPIO_InitStructure);
 
     /* TG state LED pin */
     GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Pin = TG_LED_PIN;
+    GPIO_InitStructure.GPIO_Pin = TG_LED_GPIO_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-    GPIO_Init(TG_LED_PORT, &GPIO_InitStructure);
+    GPIO_Init(TG_LED_GPIO_PORT, &GPIO_InitStructure);
 
     /* TG button pin */
     GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Pin = TG_BUTTON_PIN;
+    GPIO_InitStructure.GPIO_Pin = TG_BUTTON_GPIO_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-    GPIO_Init(TG_BUTTON_PORT, &GPIO_InitStructure);
+    GPIO_Init(TG_BUTTON_GPIO_PORT, &GPIO_InitStructure);
 
     /* PA.3 AD8307 LOG-detector output as analog input */
     GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Pin = ADC_AD8307_PIN;
+    GPIO_InitStructure.GPIO_Pin = ADC_AD8307_GPIO_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-    GPIO_Init(ADC_AD8307_PORT, &GPIO_InitStructure);
+    GPIO_Init(ADC_AD8307_GPIO_PORT, &GPIO_InitStructure);
 
     /* PA.2 LO mixer RBW-filter output as analog input */
     GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Pin = ADC_RBW_PIN;
+    GPIO_InitStructure.GPIO_Pin = ADC_RBW_GPIO_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-    GPIO_Init(ADC_RBW_PORT, &GPIO_InitStructure);
+    GPIO_Init(ADC_RBW_GPIO_PORT, &GPIO_InitStructure);
 
     /* SPI1 ie. RX LO ADF4351 pins */
     GPIO_StructInit(&GPIO_InitStructure);
@@ -1684,10 +1684,10 @@ void GPIO_Configuration(void) ///初始化要用的端口
 
     /* RX ADF4351 LE pin */
     GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Pin = ADF4351_RX_LE_PIN;
+    GPIO_InitStructure.GPIO_Pin = ADF4351_RX_LE_GPIO_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-    GPIO_Init(ADF4351_RX_LE_PORT, &GPIO_InitStructure);
+    GPIO_Init(ADF4351_RX_LE_GPIO_PORT, &GPIO_InitStructure);
     ADF4351_RX_LE_CLR();
 
     /* SPI2 ie TG ADF4351 pins */
@@ -1699,10 +1699,10 @@ void GPIO_Configuration(void) ///初始化要用的端口
 
     /* TG ADF4351 LE pin */
     GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Pin = ADF4351_TG_LE_PIN;
+    GPIO_InitStructure.GPIO_Pin = ADF4351_TG_LE_GPIO_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-    GPIO_Init(ADF4351_TG_LE_PORT, &GPIO_InitStructure);
+    GPIO_Init(ADF4351_TG_LE_GPIO_PORT, &GPIO_InitStructure);
     ADF4351_TG_LE_CLR();
 }
 
