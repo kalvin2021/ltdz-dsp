@@ -150,6 +150,20 @@ connected between the output of the 120 kHz RBF-filter and ground.
 
 Finally, wired the output of the RBW-filter to the ADC input PA.2.
 
+### Component Datasheets
+
+[STM32F103 MCU datasheet and documentation](https://www.st.com/en/microcontrollers-microprocessors/stm32f103.html#documentation).
+
+[ADF4351 PLL/VCO product-page and documentation](https://www.analog.com/en/products/adf4351.html).
+
+[IAM81008 double-balanced 5GHz mixer datasheet](https://www.qsl.net/n9zia/omnitracs/IAM81008.pdf).
+
+[AD8307 LOG/RMS-detector product-page and documentation](https://www.analog.com/en/products/ad8307.html).
+
+[AMS1117 linear voltage regulator datasheet](http://www.advanced-monolithic.com/pdf/ds1117.pdf).
+
+[PS3120A switched capacitor dc-dc-converter datasheet](https://datasheetspdf.com/pdf-file/1307904/PULAN/PS3120A/1).
+
 ## Building the Firmware
 
 The build environment is targeted for Linux platforms.
