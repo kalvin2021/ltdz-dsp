@@ -170,7 +170,7 @@ def ltdz_sweep_run(q: Queue, config: LtdzSweepConfig) -> None:
 
                 if sd.f_Hz < MIN_Hz or MAX_Hz < sd.f_Hz:
                     q.put(LtdzSweepExitStatus(LtdzStatus.ERROR,
-                        "Frequency '{}' outside valid range".format(sd.Hz)))
+                        "Frequency '{}' outside valid range".format(sd.f_Hz)))
                     break
 
                 # Read RX offset frequency (0 if tracking generator disabled)
@@ -191,7 +191,7 @@ def ltdz_sweep_run(q: Queue, config: LtdzSweepConfig) -> None:
 
                 if sd.step_Hz < MIN_STEP_Hz or MAX_STEP_Hz < sd.step_Hz:
                     q.put(LtdzSweepExitStatus(LtdzStatus.ERROR,
-                        "Frequency step '[}' outside valid range.".format(sd.step_Hz)))
+                        "Frequency step '{}' outside valid range.".format(sd.step_Hz)))
                     break
 
                 # Read ADC sample clock M
@@ -219,12 +219,12 @@ def ltdz_sweep_run(q: Queue, config: LtdzSweepConfig) -> None:
 
                 if sd.sample_rate_Hz < MIN_Fs_Hz or MAX_Fs_Hz < sd.sample_rate_Hz:
                     q.put(LtdzSweepExitStatus(LtdzStatus.ERROR,
-                        "Sample rate '[}' is outsize valid range.".format(sd.sample_rate_Hz)))
+                        "Sample rate '{}' is outsize valid range.".format(sd.sample_rate_Hz)))
                     break
 
                 if sd.sample_rate_Hz/2 < sd.rx_offset_Hz:
                     q.put(LtdzSweepExitStatus(LtdzStatus.ERROR,
-                        "RX offset '[}' is outsize valid range.".format(sd.rx_offset_Hz)))
+                        "RX offset '{}' is outsize valid range.".format(sd.rx_offset_Hz)))
                     break
 
                 # Read ADC sample buffer size
@@ -237,7 +237,7 @@ def ltdz_sweep_run(q: Queue, config: LtdzSweepConfig) -> None:
 
                 if sd.buffer_size < ADC_MIN_BUFFER or ADC_MAX_BUFFER < sd.buffer_size:
                     q.put(LtdzSweepExitStatus(LtdzStatus.ERROR,
-                        "ADC buffser size '[}' is outsize valid range.".format(sd.buffer_size)))
+                        "ADC buffser size '{}' is outsize valid range.".format(sd.buffer_size)))
                     break
 
                 # Read ADC sample buffer samples
