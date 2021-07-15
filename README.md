@@ -351,3 +351,8 @@ sample buffer during the frequency sweep.
 
 The captured ADC sample buffer data can be saved in Matlab/GNU Octave ASCII-format
 for later analysis.
+
+Here is a screen-capture from measuring a FM-band band-reject filter between
+frequency range 65MHz - 130MHz (65 steps):
+
+![FM band-reject filter response](images/ltdz_adc_reader_v0.0.png)
