@@ -263,6 +263,12 @@ from the PCB.
 Checking the actual pin numbering will reduce the amount of frustration experienced
 while trying to get the firmware update completed successfully.
 
+Use only the following ST-Link V2 signals: GND, SWDIO and SWDCLK.
+
+**WARNING: DO NOT CONNECT THE +3V3 OR +5V SIGNALS BETWEEN LTDZ AND THE ST-LINK V2 DONGLE!**
+
+Otherwise you will most probably damage your LTDZ or ST-Link V2 dongle.
+
 This project has been tested with ST-Link V2 version 1.7.0.
 Any other recent ST-Link V2 tool version should work ok.
 
@@ -299,3 +305,9 @@ Flash the firmware into the LTDZ board using ST-Link V2:
 ```
 $ make flash
 ```
+
+Use only the following ST-Link V2 signals: GND, SWDIO and SWDCLK.
+
+**WARNING: DO NOT CONNECT THE +3V3 OR +5V SIGNALS BETWEEN LTDZ AND THE ST-LINK V2 DONGLE!**
+
+Otherwise you will most probably damage your LTDZ or ST-Link V2 dongle.
