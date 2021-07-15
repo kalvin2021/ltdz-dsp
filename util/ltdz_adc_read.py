@@ -8,7 +8,7 @@
 #
 # Example:
 #
-#   python3 tkadc_read.py -p /dev/ttyUSB0 --start 90m --end 100m --count 10
+#   python3 ltdz_adc_read.py -p /dev/ttyUSB0 --start 90m --end 100m --count 10
 #
 # After a sweep, use the navigation buttons for navigating the sweep samples.
 #
