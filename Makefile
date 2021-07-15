@@ -47,6 +47,12 @@ BUILD_DIR = build
 # STM32 headers and source code
 BSP_ROOT = ${HOME}/STM32Cube/Repository
 
+# STM32Cube Firmware
+STM32CUBEFW = STM32CubeF1-1.8.3
+
+# STM32Cube StdPeriph Library
+STM32STDLIB = STM32F10x_StdPeriph_Lib_V3.5.0
+
 # GCC compiler toolchain
 GCC_PATH ?=
 
@@ -63,25 +69,25 @@ ST_FLASH = st-flash
 # C includes
 C_INCLUDES = \
 -I./ \
--I$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x \
--I$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/inc \
--I$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/Include \
--I$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/Core/Include \
--I$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/Device/ST/STM32F1xx/Include \
--I$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/DSP/Include
+-I$(BSP_ROOT)/$(STM32STDLIB)/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x \
+-I$(BSP_ROOT)/$(STM32STDLIB)/Libraries/STM32F10x_StdPeriph_Driver/inc \
+-I$(BSP_ROOT)/$(STM32CUBEFW)/Drivers/CMSIS/Include \
+-I$(BSP_ROOT)/$(STM32CUBEFW)/Drivers/CMSIS/Core/Include \
+-I$(BSP_ROOT)/$(STM32CUBEFW)/Drivers/CMSIS/Device/ST/STM32F1xx/Include \
+-I$(BSP_ROOT)/$(STM32CUBEFW)/Drivers/CMSIS/DSP/Include
 
 # C sources
 C_SOURCES = \
-$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_adc.c \
-$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_dma.c \
-$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_flash.c \
-$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_gpio.c \
-$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_rcc.c \
-$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_spi.c \
-$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_usart.c \
-$(BSP_ROOT)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/misc.c \
-$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df1_init_q31.c \
-$(BSP_ROOT)/STM32Cube_FW_F1_V1.8.3/Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df1_q31.c \
+$(BSP_ROOT)/$(STM32STDLIB)/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_adc.c \
+$(BSP_ROOT)/$(STM32STDLIB)/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_dma.c \
+$(BSP_ROOT)/$(STM32STDLIB)/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_flash.c \
+$(BSP_ROOT)/$(STM32STDLIB)/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_gpio.c \
+$(BSP_ROOT)/$(STM32STDLIB)/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_rcc.c \
+$(BSP_ROOT)/$(STM32STDLIB)/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_spi.c \
+$(BSP_ROOT)/$(STM32STDLIB)/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_usart.c \
+$(BSP_ROOT)/$(STM32STDLIB)/Libraries/STM32F10x_StdPeriph_Driver/src/misc.c \
+$(BSP_ROOT)/$(STM32CUBEFW)/Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df1_init_q31.c \
+$(BSP_ROOT)/$(STM32CUBEFW)/Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df1_q31.c \
 system_stm32f10x.c \
 main.c
 
