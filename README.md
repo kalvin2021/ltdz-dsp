@@ -324,3 +324,30 @@ Use only the following ST-Link V2 signals: GND, SWDIO and SWDCLK.
 **WARNING: DO NOT CONNECT THE +3V3 OR +5V SIGNALS BETWEEN LTDZ AND THE ST-LINK V2 DONGLE!**
 
 Otherwise you will most probably damage your LTDZ or ST-Link V2 dongle.
+
+## Using the `ltdz_adc_read.py` Utility
+
+The `ltdz_adc_read.py` utility can be used for capturing, plotting and saving
+the ADC sample buffer data.
+
+For example, the following will sweep the frequencies from 90MHz to 120MHz with
+a frequency step size of 1MHz (using 30 steps).
+
+```
+$ python3 util/ltdz_adc_read.py -p /dev/ttyUSB0 --start 90m --end 120m --step 1m
+```
+
+The utility will plot the ADC sample buffer data in time-domain, and compute
+the FFT of the samples for each sweep step (using Hanning window).
+
+The utility will also plot the overall signal spectrum over the frequency sweep range.
+
+Note: The ADC sample buffer is by default 4096 samples long.
+Transferring the complete ADC sample buffer after each frequency step over the USB
+serial line with 57600 bits/s will take some time.
+
+The utility will be used during firmware development for examining the ADC
+sample buffer during the frequency sweep.
+
+The captured ADC sample buffer data can be saved in Matlab/GNU Octave ASCII-format
+for later analysis.
