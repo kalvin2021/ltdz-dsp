@@ -164,15 +164,138 @@ Finally, wired the output of the RBW-filter to the ADC input PA.2.
 
 [PS3120A switched capacitor dc-dc-converter datasheet](https://datasheetspdf.com/pdf-file/1307904/PULAN/PS3120A/1).
 
-## Building the Firmware
+## Setting Up the Firmware Build Environment
+
+Project source code, tools and libraries:
+
+* LTDZ project source code from https://github.com/kalvin2021/ltdz-dsp
+
+* ARM GCC cross-compiler `gcc-arm-none-eabi`.
+
+* STM32CubeF1-1.8.3.
+
+* STM32F10x_StdPeriph_Lib_V3.5.0.
+
+* ST-Link V2 Programming Utility.
 
 The build environment is targeted for Linux platforms.
 
-Since Windows 10 has now Linux subsystem available, setting up the build
-environment for Windows 10 should be quite easy.
+However, since Windows 10 has now Linux subsystem available, setting up the build
+environment for Windows 10 should be quite easy as well.
 
-Updating the firmware will require use of ST-Link V2 USB-dongle and the tools.
-It is important to be aware that some cheap ST-Link V2 dongle-clones sold online
-may have wrong pin numbering on the USB dongle's enclosure.
+### ARM GCC Cross-Compiler
 
-Details T.B.D.
+This project has been built & tested with the following ARM GCC compiler version:
+
+`gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2`.
+
+It should be possible to build this project successfully with any other recent
+ARM GCC cross-compiler version.
+
+The ARM GCC cross-compiler package can be downloaded from here:
+
+https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads
+
+User may install the downloaded ARM GCC cross-compiler tool-chain into any
+suitable directory.
+
+This documentation assumes that the ARM GCC cross-compiler tool-chain will be
+installed into the user's home directory under directory `opt`.
+
+```
+$ mkdir -p ~/opt
+$ cd ~/opt
+$ tar xjf ~/Downloads/gcc-arm-none-eabi-_version_-linux.tar.bz2
+```
+
+Checking the ARM GCC compiler version:
+
+```
+$ ~/opt/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-gcc --version
+
+arm-none-eabi-gcc (GNU Arm Embedded Toolchain 10-2020-q4-major) 10.2.1 20201103 (release)
+Copyright (C) 2020 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+```
+
+### STM32CubeF1-1.8.3
+
+The STM32CubeF1-1.8.3 Github-repository can be found here:
+
+https://github.com/STMicroelectronics/STM32CubeF1/tree/v1.8.3
+
+Download the zip-package from this link:
+
+https://github.com/STMicroelectronics/STM32CubeF1/archive/refs/tags/v1.8.3.zip
+
+Install the downloaded zip-package into home directory under `STM32Cube/Repository/STM32CubeF1-1.8.3`:
+
+```
+$ mkdir -p ~/STM32Cube/Repository
+$ cd ~/STM32Cube/Repository
+$ unzip ~/Downloads/STM32CubeF1-1.8.3.zip
+```
+
+### STM32F10x_StdPeriph_Lib_V3.5.0
+
+The STM32F10x_StdPeriph_Lib_V3.5.0 can be found here:
+
+https://www.st.com/en/embedded-software/stsw-stm32054.html
+
+Install the downloaded zip-package into home directory under `STM32Cube/Repository/STM32F10x_StdPeriph_Lib_V3.5.0`:
+
+```
+$ mkdir -p ~/STM32Cube/Repository
+$ cd ~/STM32Cube/Repository
+$ unzip ~/Downloads/en.stsw-stm32054_v3.5.0.zip
+```
+
+### ST-Link V2 Programming Utility
+
+Updating the firmware will require use of ST-Link V2 USB-dongle and the utility.
+
+It is important to be aware that some cheap ST-Link V2 clones sold online
+may have wrong pin numbering on the USB-dongle's enclosure.
+
+It is possible to open the enclosure of the USB-dongle, and check the pin names
+from the PCB.
+Checking the actual pin numbering will reduce the amount of frustration experienced
+while trying to get the firmware update completed successfully.
+
+This project has been tested with ST-Link V2 version 1.7.0.
+Any other recent ST-Link V2 tool version should work ok.
+
+For the Windows build environment, a native Windows ST-Link V2 tool needs to be
+installed instead of this Linux version of the utility.
+
+The ST-Link V2 version 1.7.0 for Linux and Windows can be downloaded from the
+following link:
+
+https://github.com/stlink-org/stlink/releases/tag/v1.7.0
+
+It is also possible to build the tool from the source code.
+
+## Building the Firmware
+
+Clone the LTDZ source code repository into user's home directory under `ltdz-dsp`:
+
+```
+$ cd ~
+$ git clone --depth 1 https://github.com/kalvin2021/ltdz-dsp.git
+```
+
+Update the firmware source and build the LTDZ firmware for STM32F103:
+
+```
+$ cd ~/ltdz-dsp
+$ git pull
+$ export GCC_PATH=${HOME}/opt/gcc-arm-none-eabi-10-2020-q4-major/bin
+$ make
+```
+
+Flash the firmware into the LTDZ board using ST-Link V2:
+
+```
+$ make flash
+```
