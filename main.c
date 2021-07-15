@@ -1074,7 +1074,7 @@ STATIC_ASSERT_POWER_OF_2(SA_IIR_BLOCK_SIZE, "IIR filter block size must be 2**N"
 
 static int16_t sa_level_dB(int32_t step_size_div_10)
 {
-    const sa_iir_q31_filter_t const* sa_filter = sa_lowpass_filter_select(step_size_div_10);
+    const sa_iir_q31_filter_t* const sa_filter = sa_lowpass_filter_select(step_size_div_10);
 
     arm_biquad_casd_df1_inst_q31 iir_biquad_filter;
 
