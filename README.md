@@ -185,9 +185,10 @@ environment for Windows 10 should be quite easy as well.
 
 ### ARM GCC Cross-Compiler
 
-This project has been built & tested with the following ARM GCC compiler version:
+This project has been built & tested with the following ARM GCC compiler versions:
 
-`gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2`.
+- `gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2`
+- `gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2`
 
 It should be possible to build this project successfully with any other recent
 ARM GCC cross-compiler version.
@@ -229,7 +230,13 @@ Download the zip-package from this link:
 
 https://github.com/STMicroelectronics/STM32CubeF1/archive/refs/tags/v1.8.3.zip
 
-Install the downloaded zip-package into home directory under `STM32Cube/Repository/STM32CubeF1-1.8.3`:
+Note: This document and the project's `Makefile` uses the same default installation
+location for the zip-package that is used by the official STM32Cube ie.
+`~/STM32Cube/Repository/`.
+Should the user install the zip-package into some other location, it is required
+to update the `BSP_ROOT` in the project's `Makefile`.
+
+Install the downloaded zip-package into home directory under directory `STM32Cube/Repository/STM32CubeF1-1.8.3`:
 
 ```
 $ mkdir -p ~/STM32Cube/Repository
@@ -243,7 +250,13 @@ The STM32F10x_StdPeriph_Lib_V3.5.0 can be found here:
 
 https://www.st.com/en/embedded-software/stsw-stm32054.html
 
-Install the downloaded zip-package into home directory under `STM32Cube/Repository/STM32F10x_StdPeriph_Lib_V3.5.0`:
+Note: This document and the project's `Makefile` uses the same default installation
+location for the zip-package that is used by the official STM32Cube ie.
+`~/STM32Cube/Repository/`.
+Should the user install the zip-package into some other location, it is required
+to update the `BSP_ROOT` in the project's `Makefile`.
+
+Install the downloaded zip-package into home directory under directory `STM32Cube/Repository/STM32F10x_StdPeriph_Lib_V3.5.0`:
 
 ```
 $ mkdir -p ~/STM32Cube/Repository
