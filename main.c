@@ -26,6 +26,12 @@
 
 /* -------------------------------------------------------------------------- */
 
+/** Firmware version (do not change) */
+#define FIRMWARE_VERSION    119
+
+/** Firmware extra version info (do not change) */
+#define FIRMWARE_EXTRAVER   10
+
 /** Default serial port baud rate */
 #define CONFIG_SERIAL_BAUD              (57600)
 
@@ -58,9 +64,6 @@ STATIC_ASSERT(500 <= CONFIG_ADF4351_PLL_LOCK_TIME_us,
               "ADF4351 PLL lock wait-time must be at least 500us");
 STATIC_ASSERT(CONFIG_ADF4351_PLL_LOCK_TIME_us <= 1000,
               "ADF4351 PLL lock wait-time should not be unnecessary long");
-
-/** Firmware extra version info */
-#define FIRMWARE_EXTRAVER               10
 
 /* -------------------------------------------------------------------------- */
 
@@ -205,6 +208,9 @@ enum
 
     /* Continuous sweep */
     COMMAND_CONTINUOUS  = 'a',
+
+    /* Tracking generator control */
+    COMMAND_TG_CONTROL = 't',
 
     /* Single sweep with ADC sample buffer output */
     COMMAND_SINGLE_SWEEP_ADC_BUFFER  = 'b',
@@ -715,6 +721,10 @@ void USART1_IRQHandler(void)
                 {
                     break;
                 }
+                case COMMAND_TG_CONTROL:
+                {
+                    break;
+                }
                 }
             }
             else
@@ -1213,6 +1223,82 @@ static uint16_t rx_level_dB(bool spectrum_analyzer_mode, int32_t step_size_div_1
 
 /* --------------------------------------------------------------------------*/
 
+/** Tracking generator state bit values reported by the device */
+typedef enum {
+    /** Tracking generator disabled */
+    TG_STATE_DISABLED = 0x00,
+
+    /** Tracking generator enabled */
+    TG_STATE_ENABLED = 0x01,
+
+    /** Tracking generator is locally controlled */
+    TG_STATE_LOCAL = 0x00,
+
+    /** Tracking generator is remotely controlled */
+    TG_STATE_REMOTE = 0x02
+} tg_state_t;
+
+/** Tracking generator state determined by the push-button */
+static bool tg_local_state;
+
+/** Tracking generator state determined by the PC application */
+static bool tg_remote_state;
+
+/** Set true when the tracking generator is controlled by the remote PC application */
+static bool tg_remote_control;
+
+/** Returns the tracking generator control state */
+static tg_state_t tg_state(void)
+{
+    tg_state_t state =
+        tg_remote_control
+        ? (TG_STATE_REMOTE | (tg_remote_state ? TG_STATE_ENABLED : TG_STATE_DISABLED))
+        : (TG_STATE_LOCAL | (tg_local_state ? TG_STATE_ENABLED : TG_STATE_DISABLED));
+
+    return state;
+}
+
+/** Set the tracking generator control state */
+static void tg_state_set(tg_state_t state)
+{
+    if (state & TG_STATE_REMOTE)
+    {
+        tg_remote_control = true;
+        tg_remote_state = (state & TG_STATE_ENABLED);
+    }
+    else
+    {
+        tg_remote_control = false;
+    }
+}
+
+/** Returns true if the tracking generator is enabled */
+static bool tg_enabled(void)
+{
+    return tg_remote_control ? tg_remote_state : tg_local_state;
+}
+
+/** Returns true if the tracking generator button is released */
+static bool tg_button_is_released(void)
+{
+    return TG_BUTTON_STATE();
+}
+
+/** Update tracking generator status LED state */
+static void tg_status_led_update(void)
+{
+    if (tg_enabled())
+    {
+        TG_LED_ENABLE();
+    }
+    else
+    {
+        TG_LED_DISABLE();
+    };
+}
+
+/* --------------------------------------------------------------------------*/
+
 /** Set true when tracking generator is disabled */
 static bool tg_is_disabled = 1;
 
@@ -1383,6 +1469,16 @@ static void sweep_output_adc_buffer(adf4351_freq_div_10_t frequency_div_10,
 {
     rx_adc_buffer_fill();
 
+    /* Output device hardware ID */
+    uart_write_u8(HARDWARE);
+
+    /* Output device firmware version major:minor */
+    uart_write_u8(FIRMWARE_MAJOR);
+    uart_write_u8(FIRMWARE_MINOR);
+
+    /* Output tracking generator state */
+    uart_write_u8(tg_state());
+
     /* Output current frequency */
     uart_write_u32(frequency_div_10);
 
@@ -1413,27 +1509,6 @@ static void sweep_output_adc_buffer(adf4351_freq_div_10_t frequency_div_10,
 
 /* --------------------------------------------------------------------------*/
 
-/** Returns true if the tracking generator button is released */
-static bool tg_button_is_released(void)
-{
-    return TG_BUTTON_STATE();
-}
-
-/** Update tracking generator status LED state */
-static void tg_status_led_update(bool enabled)
-{
-    if (enabled)
-    {
-        TG_LED_ENABLE();
-    }
-    else
-    {
-        TG_LED_DISABLE();
-    };
-}
-
-/* --------------------------------------------------------------------------*/
-
 void RCC_Configuration(void);
 void GPIO_Configuration(void);
 void NVIC_Configuration(void);
@@ -1456,7 +1531,6 @@ int main(void)
     unsigned long count1 = 0;
     unsigned long cc = 0;
 
-    bool tg_enabled = false;
     bool tg_button_state = 1;
 
     delay_init();
@@ -1484,7 +1558,8 @@ int main(void)
             else
             {
                 cc = 0;
-                tg_enabled = !tg_enabled;
+                tg_remote_control = false;
+                tg_local_state = !tg_local_state;
                 tg_button_state = 0;
             }
         }
@@ -1494,7 +1569,7 @@ int main(void)
             tg_button_state = 1;
         }
 
-        tg_status_led_update(tg_enabled);
+        tg_status_led_update();
 
         if (command_flag_version > 0)
         {
@@ -1544,7 +1619,7 @@ int main(void)
             sweep_config.step_size_div_10 = command_read_step_size(&command_buffer[13]);
             sweep_config.step_count = command_read_step_count(&command_buffer[19]);
             sweep_config.pause_ms = 0;
-            sweep_config.mode_na_enable = tg_enabled;
+            sweep_config.mode_na_enable = tg_enabled();
             command_buffer_clear();
 
             sweep(&sweep_config,
@@ -1558,10 +1633,18 @@ int main(void)
             sweep_config.step_size_div_10 = command_read_step_size(&command_buffer[13]);
             sweep_config.step_count = command_read_step_count(&command_buffer[19]);
             sweep_config.pause_ms = command_read_step_pause_ms(&command_buffer[23]);
-            sweep_config.mode_na_enable = tg_enabled;
+            sweep_config.mode_na_enable = tg_enabled();
             command_buffer_clear();
 
             sweep(&sweep_config, sweep_output_dB);
+        }
+        else if ((command_buffer[0] == COMMAND_PREFIX)
+                && (command_buffer[1] == COMMAND_TG_CONTROL)
+                && (command_length == 3))
+        {
+            const unsigned state = command_read_unsigned(&command_buffer[2], 1);
+            tg_state_set(state);
+            command_buffer_clear();
         }
 
         if (tg_is_disabled)

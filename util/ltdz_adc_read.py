@@ -65,6 +65,11 @@ FFT_MAX_dB      = 0
 SPECTRUM_MIN_dB = -90
 SPECTRUM_MAX_dB = 10
 
+TG_STATE_DISABLED = 0x00
+TG_STATE_ENABLED  = 0x01
+TG_STATE_LOCAL    = 0x00
+TG_STATE_REMOTE   = 0x02
+
 # Set Matplotlib style
 plt.style.use('ggplot')
 
@@ -84,6 +89,9 @@ class LtdzSweepConfig:
         # Serial port read/write timeout in seconds
         self.serial_timeout = None
 
+        # Tracking generator remote control
+        self.tg_state = None
+
         # Sweep start frequency
         self.start_Hz = None
 
@@ -96,6 +104,18 @@ class LtdzSweepConfig:
 # LTDZ sweep data
 class LtdzSweepData:
     def __init__(self):
+        # Device hardware ID
+        self.hardware = None;
+
+        # Device firmware version major
+        self.firmware_major = None;
+
+        # Device firmware version minor
+        self.firmware_major = None;
+
+        # Device tracking generator state
+        self.tg_state = None;
+
         # Current sweep number
         self.n = None
 
@@ -144,7 +164,25 @@ def ltdz_sweep_run(q: Queue, config: LtdzSweepConfig) -> None:
         with serial.Serial(config.serial_port,
             config.serial_baud, timeout=config.serial_timeout) as ser:
 
-            # Create LTDZ command
+            if config.tg_state is not None:
+                tg_state = TG_STATE_REMOTE | config.tg_state
+            else:
+                tg_state = TG_STATE_LOCAL
+
+            # Create LTDZ tracking generator control command
+            command = b'\x8f'
+            command += b't'
+            command += "{:1}".format(tg_state).encode()
+
+            # Write LTDZ command to serial port
+            num_bytes = ser.write(command)
+            if num_bytes < len(command):
+                q.put(LtdzSweepExitStatus(LtdzStatus.FAIL,
+                    "Fatal serial port '{}' error while writing command").format(config.serial_port))
+                ser.close()
+                return
+
+            # Create LTDZ sweep command
             command = b'\x8f'
             command += b'b'
             command += "{:09}00{:06}{:04}".format(config.start_Hz//10, config.step_Hz//10, config.step_count).encode()
@@ -162,6 +200,38 @@ def ltdz_sweep_run(q: Queue, config: LtdzSweepConfig) -> None:
                 sd = LtdzSweepData()
 
                 sd.n = n
+
+                # Read device hardware ID
+                buf = ser.read(1)
+                if len(buf) < 1:
+                    q.put(LtdzSweepExitStatus(LtdzStatus.TIMEOUT))
+                    break
+
+                sd.hardware = struct.unpack_from("B"*1, buf)[0]
+
+                # Read device firmware version major
+                buf = ser.read(1)
+                if len(buf) < 1:
+                    q.put(LtdzSweepExitStatus(LtdzStatus.TIMEOUT))
+                    break
+
+                sd.firmware_major = struct.unpack_from("B"*1, buf)[0]
+
+                # Read device firmware version minor
+                buf = ser.read(1)
+                if len(buf) < 1:
+                    q.put(LtdzSweepExitStatus(LtdzStatus.TIMEOUT))
+                    break
+
+                sd.firmware_minor = struct.unpack_from("B"*1, buf)[0]
+
+                # Read device tracking generator state
+                buf = ser.read(1)
+                if len(buf) < 1:
+                    q.put(LtdzSweepExitStatus(LtdzStatus.TIMEOUT))
+                    break
+
+                sd.tg_state = struct.unpack_from("B"*1, buf)[0]
 
                 # Read center frequency
                 buf = ser.read(4)
@@ -429,6 +499,16 @@ class Application(tk.Frame):
         ttk.Label(frm, textvariable=self.sample_n, width=VALUE_WIDTH, anchor=tk.E).grid(column=COL+1, row=ROW, padx=PADX, pady=PADY, sticky=tk.E)
 
         ROW += 1
+        self.sample_tg_state = tk.StringVar()
+        if self.sweep_settings.tg_state is None:
+            tg_control = "TG (Local):"
+        else:
+            tg_control = "TG (Remote):"
+
+        ttk.Label(frm, text=tg_control).grid(column=COL, row=ROW, padx=PADX, pady=PADY, sticky=tk.W)
+        ttk.Label(frm, textvariable=self.sample_tg_state).grid(column=COL+1, row=ROW, padx=PADX, pady=PADY, sticky=tk.E)
+
+        ROW += 1
         self.sample_tx = tk.StringVar()
         ttk.Label(frm, text="TX:").grid(column=COL, row=ROW, padx=PADX, pady=PADY, sticky=tk.W)
         ttk.Label(frm, textvariable=self.sample_tx).grid(column=COL+1, row=ROW, padx=PADX, pady=PADY, sticky=tk.E)
@@ -681,6 +761,7 @@ class Application(tk.Frame):
         self.sampling_rate.set(NULL_FREQ)
         self.sampling_buffer_length.set(NULL_NUM)
         self.sample_n.set(NULL_NUM)
+        self.sample_tg_state.set(NULL_NUM)
         self.sample_tx.set(NULL_FREQ)
         self.sample_rx.set(NULL_FREQ)
         self.sample_level.set(NULL_NUM)
@@ -751,6 +832,7 @@ class Application(tk.Frame):
         config.serial_port = serial_port
         config.serial_baud = serial_baud
         config.serial_timeout = serial_timeout
+        config.tg_state = self.sweep_settings.tg_state
         config.start_Hz = self.sweep_settings.start_Hz
         config.step_Hz = self.sweep_settings.step_Hz
         config.step_count = self.sweep_settings.step_count
@@ -778,6 +860,7 @@ class Application(tk.Frame):
 
         # Sample info
         self.sample_n.set(FORMAT_NUM.format(sd.n))
+        self.sample_tg_state.set(FORMAT_NUM.format(sd.tg_state & TG_STATE_ENABLED))
         self.sample_tx.set(FORMAT_FREQ.format(sd.f_Hz))
         self.sample_rx.set(FORMAT_FREQ.format(sd.rx_offset_Hz))
         self.sample_rms.set(FORMAT_LEVEL.format(sd.rms))
@@ -819,6 +902,7 @@ class Application(tk.Frame):
 
 class SweepSettings:
     def __init__(self, args):
+        self.tg_state = args.tg_state
         self.start_Hz = self.kmg_to_num(args.start_Hz)
         self.center_Hz = self.kmg_to_num(args.center_Hz)
         self.end_Hz = self.kmg_to_num(args.end_Hz)
@@ -991,6 +1075,11 @@ parser.add_argument('-t', "--timeout",
     type=int,
     default=SERIAL_TIMEOUT,
     help="Serial port timeout value in seconds")
+parser.add_argument('-r', "--remote",
+    dest='tg_state',
+    type=int,
+    default=None,
+    help="Tracking generator remote control state")
 parser.add_argument('--start',
     dest='start_Hz',
     default=None,
