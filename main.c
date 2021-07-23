@@ -728,16 +728,16 @@ void USART1_IRQHandler(void)
     USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 }
 
-/* --------------------------------------------------------------------------*/
+/* -------------------------------------------------------------------------- */
 
 /** AD8307 LOG/RMS read average count */
 #define RX_LEVEL_AVERAGE_COUNT    (1)
 
-STATIC_ASSERT(RX_LEVEL_AVERAGE_COUNT >= 1, "Average count must be >= 1");
-
 /** Returns the AD8307 LOG/RMS value */
 static int16_t rx_ad8307_level(unsigned average_count)
 {
+    STATIC_ASSERT(RX_LEVEL_AVERAGE_COUNT >= 1, "Average count must be 1");
+
     uint32_t ad8307_level_sum = 0;
 
     for (unsigned n = 0; n < average_count; n++)
@@ -765,12 +765,12 @@ static const int log2_table[256] =
 #include "ltdz_log2_table.inc"
 };
 
-STATIC_ASSERT_POWER_OF_2(sizeof(log2_table) / sizeof(log2_table[0]),
-                         "Log2 table size must be 2**N");
-
 /** Returns 20*LOG10(x)*10 */
 static int16_t log_dB(uint64_t x)
 {
+    STATIC_ASSERT_POWER_OF_2((sizeof(log2_table) / sizeof(log2_table[0])),
+                             "Log2 table size must be 2**N");
+
     int exp = 8;
 
     /* Make sure that log argument won't be zero */
@@ -1070,10 +1070,10 @@ static sa_iir_q31_filter_t const* sa_lowpass_filter_select(int32_t step_size_div
 
 #define SA_IIR_BLOCK_SIZE   (1<<5)
 
-STATIC_ASSERT_POWER_OF_2(SA_IIR_BLOCK_SIZE, "IIR filter block size must be 2**N");
-
 static int16_t sa_level_dB(int32_t step_size_div_10)
 {
+    STATIC_ASSERT_POWER_OF_2(SA_IIR_BLOCK_SIZE, "IIR filter block size must be 2**N");
+
     const sa_iir_q31_filter_t* const sa_filter = sa_lowpass_filter_select(step_size_div_10);
 
     arm_biquad_casd_df1_inst_q31 iir_biquad_filter;
