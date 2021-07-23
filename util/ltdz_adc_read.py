@@ -18,7 +18,7 @@
 # File | Exit       Quit
 #
 
-APP_VERSION     = "Ver 0.0"
+APP_VERSION     = "Ver 0.1"
 APP_TITLE       = "LTDZ ADC Reader " + APP_VERSION
 APP_GEOMETRY    = '1400x800'
 
