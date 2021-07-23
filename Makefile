@@ -15,7 +15,15 @@
 #
 # *****************************************************************************
 
-FIRMWARE_VERSION = 119
+# Hardware IDs
+HARDWARE_LTDZ = 1
+
+# Target hardware
+HARDWARE = $(HARDWARE_LTDZ)
+
+# New firmware versions
+FIRMWARE_MAJOR = 0
+FIRMWARE_MINOR = 1
 
 ######################################
 # target
@@ -139,7 +147,9 @@ C_DEFS = \
 -DSTM32F103xB \
 -DSTM32F10X_MD \
 -DARM_MATH_CM3 \
--DFIRMWARE_VERSION=$(FIRMWARE_VERSION)
+-DHARDWARE=$(HARDWARE) \
+-DFIRMWARE_MAJOR=$(FIRMWARE_MAJOR) \
+-DFIRMWARE_MINOR=$(FIRMWARE_MINOR)
 
 # C compiler options
 CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT)
