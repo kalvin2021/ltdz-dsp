@@ -1075,11 +1075,11 @@ parser.add_argument('-t', "--timeout",
     type=int,
     default=SERIAL_TIMEOUT,
     help="Serial port timeout value in seconds")
-parser.add_argument('-r', "--remote",
+parser.add_argument('--tg',
     dest='tg_state',
     type=int,
     default=None,
-    help="Tracking generator remote control state")
+    help="Optional tracking generator state: 0=disable, 1=enable")
 parser.add_argument('--start',
     dest='start_Hz',
     default=None,
